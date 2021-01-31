@@ -30,6 +30,7 @@ main =
 type alias Model =
     { itemSpawned : ItemSpawned
     , inputGuess : String
+    , theRightAnswer : Int
     }
 
 
@@ -37,6 +38,7 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     ( { itemSpawned = { time = 0, item = Red }
       , inputGuess = ""
+      , theRightAnswer = 0
       }
     , Random.generate GeneratedItem itemSpawnedGenerator
     )
@@ -75,11 +77,42 @@ update msg model =
             ( { model | inputGuess = txt }, Cmd.none )
 
         GuessSubmitted ->
-            ( model, Cmd.none )
+            validateAnswer model
 
 
 
 -- Generate spawn time for Red or Mega
+
+
+validateAnswer : Model -> ( Model, Cmd Msg )
+validateAnswer model =
+    let
+        item =
+            model.itemSpawned.item
+
+        time =
+            model.itemSpawned.time
+
+        guess =
+            Maybe.withDefault -1 (String.toInt model.inputGuess)
+
+        theRightAnswer =
+            case item of
+                Red ->
+                    if time + 25 >= 60 then
+                        time + 25 - 60
+
+                    else
+                        time + 25
+
+                Mega ->
+                    if time + 35 >= 60 then
+                        time + 35 - 60
+
+                    else
+                        time + 35
+    in
+    ( { model | theRightAnswer = theRightAnswer }, Cmd.none )
 
 
 itemSpawnedGenerator : Random.Generator ItemSpawned
@@ -116,12 +149,16 @@ view model =
         Ui.column
             [ Ui.centerX, Ui.centerY, Ui.paddingEach { top = 0, right = 0, bottom = 200, left = 0 } ]
             [ Ui.text (itemToString model.itemSpawned.item ++ " spawned at " ++ String.fromInt model.itemSpawned.time)
-            , Element.Input.text [ onEnter GuessSubmitted ]
+            , Element.Input.text
+                [ onEnter GuessSubmitted ]
                 { onChange = InputChanged
                 , text = model.inputGuess
                 , placeholder = Just (Element.Input.placeholder [] (Ui.text "placeholder"))
                 , label = Element.Input.labelLeft [] (Ui.text "Next item at xx:")
                 }
+            , Element.Input.button
+                []
+                { onPress = Just GuessSubmitted, label = Ui.text "Guess" }
             ]
 
 
