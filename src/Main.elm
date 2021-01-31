@@ -26,15 +26,15 @@ main =
 
 
 type alias Model =
-    { generatedNumber : Int
+    { itemSpawned : ItemSpawned
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { generatedNumber = 0
+    ( { itemSpawned = { time = 0, item = Red }
       }
-    , Random.generate GeneratedNumber timeGenerator
+    , Random.generate GeneratedItem generateItem
     )
 
 
@@ -43,18 +43,27 @@ init _ =
 
 
 type Msg
-    = GeneratingNumber
-    | GeneratedNumber Int
+    = GeneratingItem
+    | GeneratedItem ItemSpawned
+
+
+type alias ItemSpawned =
+    { time : Int, item : Item }
+
+
+type Item
+    = Red
+    | Mega
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GeneratingNumber ->
-            ( model, Random.generate GeneratedNumber timeGenerator )
+        GeneratingItem ->
+            ( model, Random.generate GeneratedItem generateItem )
 
-        GeneratedNumber generated ->
-            ( { model | generatedNumber = generated }, Cmd.none )
+        GeneratedItem generated ->
+            ( { model | itemSpawned = generated }, Cmd.none )
 
 
 
@@ -64,6 +73,16 @@ update msg model =
 timeGenerator : Random.Generator Int
 timeGenerator =
     Random.int 0 59
+
+
+itemGenerator : Random.Generator Item
+itemGenerator =
+    Random.uniform Red [ Mega ]
+
+
+generateItem : Random.Generator ItemSpawned
+generateItem =
+    Random.map2 ItemSpawned timeGenerator itemGenerator
 
 
 
@@ -84,4 +103,18 @@ view model =
     Ui.layout [] <|
         Ui.column
             [ Ui.centerX, Ui.centerY, Ui.paddingEach { top = 0, right = 0, bottom = 200, left = 0 } ]
-            [ Ui.text ("Red armor spawned at " ++ String.fromInt model.generatedNumber) ]
+            [ Ui.text (itemToString model.itemSpawned.item ++ " spawned at " ++ String.fromInt model.itemSpawned.time) ]
+
+
+itemToString : Item -> String
+itemToString item =
+    case item of
+        Red ->
+            "Red armor"
+
+        Mega ->
+            "Mega"
+
+
+
+-- ++ String.fromInt model.generatedNumber) ]
