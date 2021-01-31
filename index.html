@@ -5495,13 +5495,13 @@ var $elm$random$Random$int = F2(
 			});
 	});
 var $author$project$Main$timeGenerator = A2($elm$random$Random$int, 0, 59);
-var $author$project$Main$generateItem = A3($elm$random$Random$map2, $author$project$Main$ItemSpawned, $author$project$Main$timeGenerator, $author$project$Main$itemGenerator);
+var $author$project$Main$itemSpawnedGenerator = A3($elm$random$Random$map2, $author$project$Main$ItemSpawned, $author$project$Main$timeGenerator, $author$project$Main$itemGenerator);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
 			itemSpawned: {item: $author$project$Main$Red, time: 0}
 		},
-		A2($elm$random$Random$generate, $author$project$Main$GeneratedItem, $author$project$Main$generateItem));
+		A2($elm$random$Random$generate, $author$project$Main$GeneratedItem, $author$project$Main$itemSpawnedGenerator));
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
@@ -5515,7 +5515,7 @@ var $author$project$Main$update = F2(
 		if (msg.$ === 'GeneratingItem') {
 			return _Utils_Tuple2(
 				model,
-				A2($elm$random$Random$generate, $author$project$Main$GeneratedItem, $author$project$Main$generateItem));
+				A2($elm$random$Random$generate, $author$project$Main$GeneratedItem, $author$project$Main$itemSpawnedGenerator));
 		} else {
 			var generated = msg.a;
 			return _Utils_Tuple2(

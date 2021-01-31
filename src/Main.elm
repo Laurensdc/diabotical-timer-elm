@@ -34,7 +34,7 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     ( { itemSpawned = { time = 0, item = Red }
       }
-    , Random.generate GeneratedItem generateItem
+    , Random.generate GeneratedItem itemSpawnedGenerator
     )
 
 
@@ -60,7 +60,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GeneratingItem ->
-            ( model, Random.generate GeneratedItem generateItem )
+            ( model, Random.generate GeneratedItem itemSpawnedGenerator )
 
         GeneratedItem generated ->
             ( { model | itemSpawned = generated }, Cmd.none )
@@ -68,6 +68,11 @@ update msg model =
 
 
 -- Generate spawn time for Red or Mega
+
+
+itemSpawnedGenerator : Random.Generator ItemSpawned
+itemSpawnedGenerator =
+    Random.map2 ItemSpawned timeGenerator itemGenerator
 
 
 timeGenerator : Random.Generator Int
@@ -78,11 +83,6 @@ timeGenerator =
 itemGenerator : Random.Generator Item
 itemGenerator =
     Random.uniform Red [ Mega ]
-
-
-generateItem : Random.Generator ItemSpawned
-generateItem =
-    Random.map2 ItemSpawned timeGenerator itemGenerator
 
 
 
