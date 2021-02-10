@@ -219,13 +219,13 @@ viewCoreGame model =
         ( feedbackColor, feedbackText ) =
             case model.lastGuessCorrectness of
                 Correct ->
-                    ( Ui.rgb 0 1 0, "Joepie" )
+                    ( color Positive, "Joepie" )
 
                 Wrong ->
-                    ( Ui.rgb 1 0 0, "Fuck ge suckt" )
+                    ( color Negative, "Fuck ge suckt" )
 
                 HasntAnsweredYet ->
-                    ( Ui.rgb 0 0 0, "Antwoord, slet" )
+                    ( color Text, "Antwoord, slet" )
 
         feedback =
             Ui.paragraph [ Font.color <| feedbackColor ] [ Ui.text feedbackText ]
@@ -236,6 +236,8 @@ viewCoreGame model =
         , Ui.text " spawned at "
         , Ui.el [ Font.bold ] (Ui.text (String.fromInt model.currentSpawn.time))
         ]
+
+    -- inputGuess textfield
     , Input.text
         [ onEnter GuessSubmitted
         , Ui.width (Ui.shrink |> Ui.minimum 80)
@@ -249,6 +251,8 @@ viewCoreGame model =
         , placeholder = Just (Input.placeholder [ Font.color <| color TextInverted ] (Ui.text ""))
         , label = Input.labelLeft [] (Ui.text "Next item at xx:")
         }
+
+    -- Guess btn
     , Input.button
         [ Border.width 1
         , Border.rounded 8
@@ -257,8 +261,8 @@ viewCoreGame model =
         , Font.color <| color Text
         , Ui.paddingXY 32 8
         , Ui.mouseOver
-            [ Font.color <| color Cta
-            , Border.color <| color Cta
+            [ Font.color <| color Highlight
+            , Border.color <| color Highlight
             ]
         , smoothTransition
         ]
@@ -305,31 +309,32 @@ type AppColor
     = Text
     | TextInverted
     | Bg
-    | Cta
     | BgLight
+    | Highlight
+    | Negative
+    | Positive
 
 
 color : AppColor -> Ui.Color
 color col =
     case col of
-        Bg ->
-            Ui.rgb255 0x22 0x28 0x31
-
         Text ->
             Ui.rgb255 0xEE 0xEE 0xEE
 
         TextInverted ->
             Ui.rgb255 0x33 0x33 0x33
 
-        Cta ->
-            Ui.rgb255 0xFF 0xD3 0x69
+        Bg ->
+            Ui.rgb255 0x22 0x28 0x31
 
         BgLight ->
             Ui.rgb255 0x39 0x3E 0x46
 
+        Highlight ->
+            Ui.rgb255 0xFF 0xD3 0x69
 
+        Negative ->
+            Ui.rgb255 248 102 113
 
--- hexToColor : String -> Ui.Color
--- hexToColor s =
---     -- Eerste karakter is #
---     String.
+        Positive ->
+            Ui.rgb255 98 209 86

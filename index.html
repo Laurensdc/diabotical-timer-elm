@@ -10985,16 +10985,20 @@ var $mdgriffith$elm_ui$Element$rgb255 = F3(
 	});
 var $author$project$Main$color = function (col) {
 	switch (col.$) {
-		case 'Bg':
-			return A3($mdgriffith$elm_ui$Element$rgb255, 34, 40, 49);
 		case 'Text':
 			return A3($mdgriffith$elm_ui$Element$rgb255, 238, 238, 238);
 		case 'TextInverted':
 			return A3($mdgriffith$elm_ui$Element$rgb255, 51, 51, 51);
-		case 'Cta':
-			return A3($mdgriffith$elm_ui$Element$rgb255, 255, 211, 105);
-		default:
+		case 'Bg':
+			return A3($mdgriffith$elm_ui$Element$rgb255, 34, 40, 49);
+		case 'BgLight':
 			return A3($mdgriffith$elm_ui$Element$rgb255, 57, 62, 70);
+		case 'Highlight':
+			return A3($mdgriffith$elm_ui$Element$rgb255, 255, 211, 105);
+		case 'Negative':
+			return A3($mdgriffith$elm_ui$Element$rgb255, 248, 102, 113);
+		default:
+			return A3($mdgriffith$elm_ui$Element$rgb255, 98, 209, 86);
 	}
 };
 var $mdgriffith$elm_ui$Internal$Model$Unkeyed = function (a) {
@@ -16719,11 +16723,13 @@ var $mdgriffith$elm_ui$Element$spacing = function (x) {
 };
 var $mdgriffith$elm_ui$Element$Font$typeface = $mdgriffith$elm_ui$Internal$Model$Typeface;
 var $author$project$Main$BgLight = {$: 'BgLight'};
-var $author$project$Main$Cta = {$: 'Cta'};
 var $author$project$Main$GuessSubmitted = {$: 'GuessSubmitted'};
+var $author$project$Main$Highlight = {$: 'Highlight'};
 var $author$project$Main$InputGuessChanged = function (a) {
 	return {$: 'InputGuessChanged', a: a};
 };
+var $author$project$Main$Negative = {$: 'Negative'};
+var $author$project$Main$Positive = {$: 'Positive'};
 var $author$project$Main$TextInverted = {$: 'TextInverted'};
 var $mdgriffith$elm_ui$Internal$Model$Class = F2(
 	function (a, b) {
@@ -17968,15 +17974,15 @@ var $author$project$Main$viewCoreGame = function (model) {
 		switch (_v1.$) {
 			case 'Correct':
 				return _Utils_Tuple2(
-					A3($mdgriffith$elm_ui$Element$rgb, 0, 1, 0),
+					$author$project$Main$color($author$project$Main$Positive),
 					'Joepie');
 			case 'Wrong':
 				return _Utils_Tuple2(
-					A3($mdgriffith$elm_ui$Element$rgb, 1, 0, 0),
+					$author$project$Main$color($author$project$Main$Negative),
 					'Fuck ge suckt');
 			default:
 				return _Utils_Tuple2(
-					A3($mdgriffith$elm_ui$Element$rgb, 0, 0, 0),
+					$author$project$Main$color($author$project$Main$Text),
 					'Antwoord, slet');
 		}
 	}();
@@ -18064,9 +18070,9 @@ var $author$project$Main$viewCoreGame = function (model) {
 					_List_fromArray(
 						[
 							$mdgriffith$elm_ui$Element$Font$color(
-							$author$project$Main$color($author$project$Main$Cta)),
+							$author$project$Main$color($author$project$Main$Highlight)),
 							$mdgriffith$elm_ui$Element$Border$color(
-							$author$project$Main$color($author$project$Main$Cta))
+							$author$project$Main$color($author$project$Main$Highlight))
 						])),
 					$author$project$Main$smoothTransition
 				]),
