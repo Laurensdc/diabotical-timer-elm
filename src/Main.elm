@@ -31,8 +31,7 @@ main =
 
 
 type alias Model =
-    { itemSpawned : Spawn
-    , inputGuess : String
+    { inputGuess : String
     , theRightAnswer : Int
     , gameState : GameState
     }
@@ -40,12 +39,11 @@ type alias Model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { itemSpawned = { time = 0, item = Red }
-      , gameState = Loading
+    ( { gameState = Loading
       , inputGuess = ""
       , theRightAnswer = 0
       }
-    , Random.generate GeneratedItem itemSpawnedGenerator
+    , Random.generate GeneratedSpawn itemSpawnedGenerator
     )
 
 
@@ -54,15 +52,15 @@ init _ =
 
 
 type Msg
-    = GeneratingItem
-    | GeneratedItem Spawn
-    | InputChanged String
-    | GuessSubmitted
+    = GeneratingSpawn
+    | GeneratedSpawn Spawn
+    | InputGuessChanged String -- Input field
+    | GuessSubmitted Spawn -- Spawned item & Int guess of player
 
 
 type GameState
     = Loading
-    | Guessed String
+    | Guessed
     | ItemSpawned Spawn
 
 
@@ -78,36 +76,36 @@ type Item
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GeneratingItem ->
+        GeneratingSpawn ->
             ( model, generateNewSpawn )
 
-        GeneratedItem itemSpawned ->
+        GeneratedSpawn itemSpawned ->
             ( { model | gameState = ItemSpawned itemSpawned }, Cmd.none )
 
-        InputChanged txt ->
+        InputGuessChanged txt ->
             ( { model | inputGuess = txt }, Cmd.none )
 
-        GuessSubmitted ->
-            ( validateAnswer model, generateNewSpawn )
+        GuessSubmitted spawn ->
+            ( validateAnswer model spawn, generateNewSpawn )
 
 
 generateNewSpawn : Cmd Msg
 generateNewSpawn =
-    Random.generate GeneratedItem itemSpawnedGenerator
+    Random.generate GeneratedSpawn itemSpawnedGenerator
 
 
 
 -- Generate spawn time for Red or Mega
 
 
-validateAnswer : Model -> Model
-validateAnswer model =
+validateAnswer : Model -> Spawn -> Model
+validateAnswer model spawn =
     let
         item =
-            model.itemSpawned.item
+            spawn.item
 
         time =
-            model.itemSpawned.time
+            spawn.time
 
         guess =
             Maybe.withDefault -1 (String.toInt model.inputGuess)
@@ -165,13 +163,19 @@ view model =
         { options =
             -- Global focus style
             [ Ui.focusStyle
-                { borderColor = Just (Ui.rgb 0.2 0.2 0.8)
+                { borderColor = Nothing
                 , backgroundColor = Nothing
-                , shadow = Nothing
+                , shadow =
+                    Just
+                        { color = Ui.rgba 1 1 1 0.4
+                        , offset = ( 0, 0 )
+                        , blur = 5
+                        , size = 2
+                        }
                 }
             ]
         }
-        []
+        [ Background.color (color Bg) ]
         (Ui.column
             -- Main UI component
             [ Ui.centerX
@@ -215,28 +219,36 @@ viewCoreGame model =
                 , Ui.el [ Font.bold ] (Ui.text (String.fromInt spawn.time))
                 ]
             , Input.text
-                [ onEnter GuessSubmitted
+                [ onEnter (GuessSubmitted spawn)
                 , Ui.width (Ui.shrink |> Ui.minimum 80)
+                , Ui.height (Ui.px 40)
+                , Ui.centerY
                 , Input.focusedOnLoad
                 ]
-                { onChange = InputChanged
+                { onChange = InputGuessChanged
                 , text = model.inputGuess
                 , placeholder = Just (Input.placeholder [] (Ui.text "25"))
-                , label = Input.labelLeft [ Font.semiBold ] (Ui.text "Next item at xx:")
+                , label = Input.labelLeft [] (Ui.text "Next item at xx:")
                 }
             , Input.button
                 [ Border.width 1
                 , Border.rounded 8
+                , Border.color <| color Text
+                , Background.color <| color BgLight
+                , Font.color <| color Text
                 , Ui.paddingXY 32 8
-                , Ui.mouseOver [ Font.color <| Ui.rgb 1 1 1, Background.color <| Ui.rgb 0.2 0.2 0.2 ]
+                , Ui.mouseOver
+                    [ Font.color <| color Cta
+                    , Border.color <| color Cta
+                    ]
                 , smoothTransition
                 ]
-                { onPress = Just GuessSubmitted
+                { onPress = Just (GuessSubmitted spawn)
                 , label = Ui.text "Guess"
                 }
             ]
 
-        Guessed x ->
+        _ ->
             [ Ui.none ]
 
 
@@ -274,11 +286,26 @@ smoothTransition =
 
 type AppColor
     = Text
+    | TextInverted
+    | Bg
+    | Cta
+    | BgLight
 
 
 color : AppColor -> Ui.Color
 color col =
     case col of
-        -- Ui.rgb255 0x33 0x33 0x33
+        Bg ->
+            Ui.rgb255 0x22 0x28 0x31
+
         Text ->
-            Ui.rgb 0.2 0.2 0.2
+            Ui.rgb255 0xEE 0xEE 0xEE
+
+        TextInverted ->
+            Ui.rgb255 0x33 0x33 0x33
+
+        Cta ->
+            Ui.rgb255 0xFF 0xD3 0x69
+
+        BgLight ->
+            Ui.rgb255 0x39 0x3E 0x46
