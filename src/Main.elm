@@ -209,13 +209,6 @@ view model =
 viewCoreGame : Model -> List (Ui.Element Msg)
 viewCoreGame model =
     let
-        spawncolor =
-            if model.currentSpawn.item == Red then
-                Ui.rgb 1 0 0
-
-            else
-                Ui.rgb 0 1 1
-
         ( feedbackColor, feedbackText ) =
             case model.lastGuessCorrectness of
                 Correct ->
@@ -230,12 +223,7 @@ viewCoreGame model =
         feedback =
             Ui.paragraph [ Font.color <| feedbackColor ] [ Ui.text feedbackText ]
     in
-    [ Ui.paragraph []
-        -- Red armor / mega spawned at
-        [ Ui.el [ Font.bold, Font.color spawncolor ] (Ui.text (itemToString model.currentSpawn.item))
-        , Ui.text " spawned at "
-        , Ui.el [ Font.bold ] (Ui.text (String.fromInt model.currentSpawn.time))
-        ]
+    [ viewSpawn model.currentSpawn
 
     -- inputGuess textfield
     , Input.text
@@ -271,6 +259,24 @@ viewCoreGame model =
         }
     , feedback
     ]
+
+
+viewSpawn : Spawn -> Ui.Element Msg
+viewSpawn spawn =
+    -- Red armor / mega spawned at xx
+    let
+        spawncolor =
+            if spawn.item == Red then
+                Ui.rgb 1 0 0
+
+            else
+                Ui.rgb 0 1 1
+    in
+    Ui.paragraph []
+        [ Ui.el [ Font.bold, Font.color spawncolor ] (Ui.text (itemToString spawn.item))
+        , Ui.text " spawned at "
+        , Ui.el [ Font.bold ] (Ui.text (String.fromInt spawn.time))
+        ]
 
 
 itemToString : Item -> String
