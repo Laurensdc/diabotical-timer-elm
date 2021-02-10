@@ -17,6 +17,7 @@ import Random
 -- MAIN
 
 
+main : Program () Model Msg
 main =
     Browser.element
         { init = init
@@ -208,56 +209,10 @@ view model =
 
 viewCoreGame : Model -> List (Ui.Element Msg)
 viewCoreGame model =
-    let
-        ( feedbackColor, feedbackText ) =
-            case model.lastGuessCorrectness of
-                Correct ->
-                    ( color Positive, "Joepie" )
-
-                Wrong ->
-                    ( color Negative, "Fuck ge suckt" )
-
-                HasntAnsweredYet ->
-                    ( color Text, "Antwoord, slet" )
-
-        feedback =
-            Ui.paragraph [ Font.color <| feedbackColor ] [ Ui.text feedbackText ]
-    in
     [ viewSpawn model.currentSpawn
-
-    -- inputGuess textfield
-    , Input.text
-        [ onEnter GuessSubmitted
-        , Ui.width (Ui.shrink |> Ui.minimum 80)
-        , Ui.height (Ui.px 40)
-        , Ui.centerY
-        , Input.focusedOnLoad
-        , Font.color <| color TextInverted
-        ]
-        { onChange = InputGuessChanged
-        , text = model.inputGuess
-        , placeholder = Just (Input.placeholder [ Font.color <| color TextInverted ] (Ui.text ""))
-        , label = Input.labelLeft [] (Ui.text "Next item at xx:")
-        }
-
-    -- Guess btn
-    , Input.button
-        [ Border.width 1
-        , Border.rounded 8
-        , Border.color <| color Text
-        , Background.color <| color BgLight
-        , Font.color <| color Text
-        , Ui.paddingXY 32 8
-        , Ui.mouseOver
-            [ Font.color <| color Highlight
-            , Border.color <| color Highlight
-            ]
-        , smoothTransition
-        ]
-        { onPress = Just GuessSubmitted
-        , label = Ui.text "Guess"
-        }
-    , feedback
+    , viewInputGuess model.inputGuess
+    , viewGuessButton
+    , viewFeedback model.lastGuessCorrectness
     ]
 
 
@@ -277,6 +232,62 @@ viewSpawn spawn =
         , Ui.text " spawned at "
         , Ui.el [ Font.bold ] (Ui.text (String.fromInt spawn.time))
         ]
+
+
+viewInputGuess : String -> Ui.Element Msg
+viewInputGuess text =
+    -- inputGuess textfield
+    Input.text
+        [ onEnter GuessSubmitted
+        , Ui.width (Ui.shrink |> Ui.minimum 80)
+        , Ui.height (Ui.px 40)
+        , Ui.centerY
+        , Input.focusedOnLoad
+        , Font.color <| color TextInverted
+        ]
+        { onChange = InputGuessChanged
+        , text = text
+        , placeholder = Just (Input.placeholder [ Font.color <| color TextInverted ] (Ui.text ""))
+        , label = Input.labelLeft [] (Ui.text "Next item at xx:")
+        }
+
+
+viewGuessButton : Ui.Element Msg
+viewGuessButton =
+    -- Guess btn
+    Input.button
+        [ Border.width 1
+        , Border.rounded 8
+        , Border.color <| color Text
+        , Background.color <| color BgLight
+        , Font.color <| color Text
+        , Ui.paddingXY 32 8
+        , Ui.mouseOver
+            [ Font.color <| color Highlight
+            , Border.color <| color Highlight
+            ]
+        , smoothTransition
+        ]
+        { onPress = Just GuessSubmitted
+        , label = Ui.text "Guess"
+        }
+
+
+viewFeedback : LastGuessCorrectness -> Ui.Element msg
+viewFeedback lastGuessCorrectness =
+    let
+        ( feedbackColor, feedbackText ) =
+            case lastGuessCorrectness of
+                Correct ->
+                    ( color Positive, "Joepie" )
+
+                Wrong ->
+                    ( color Negative, "Fuck ge suckt" )
+
+                HasntAnsweredYet ->
+                    ( color Text, "Antwoord, slet" )
+    in
+    Ui.paragraph [ Font.color <| feedbackColor ] [ Ui.text feedbackText ]
 
 
 itemToString : Item -> String
