@@ -10870,7 +10870,7 @@ var $author$project$Main$validateAnswer = function (model) {
 	var item = model.currentSpawn.item;
 	var theRightAnswer = A2(
 		$elm$core$Debug$log,
-		'theRightAnswer',
+		'the right answer was',
 		function () {
 			if (item.$ === 'Red') {
 				return ((time + 25) >= 60) ? ((time + 25) - 60) : (time + 25);
@@ -18039,11 +18039,7 @@ var $author$project$Main$viewInputGuess = function (text) {
 			placeholder: $elm$core$Maybe$Just(
 				A2(
 					$mdgriffith$elm_ui$Element$Input$placeholder,
-					_List_fromArray(
-						[
-							$mdgriffith$elm_ui$Element$Font$color(
-							$author$project$Main$color($author$project$Main$TextInverted))
-						]),
+					_List_Nil,
 					$mdgriffith$elm_ui$Element$text(''))),
 			text: text
 		});

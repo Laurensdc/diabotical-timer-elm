@@ -55,8 +55,8 @@ init _ =
 type Msg
     = GeneratingSpawn
     | GeneratedSpawn Spawn
-    | InputGuessChanged String -- Input field
-    | GuessSubmitted -- Spawned item & Int guess of player
+    | InputGuessChanged String
+    | GuessSubmitted
 
 
 type LastGuessCorrectness
@@ -112,7 +112,7 @@ validateAnswer model =
             Maybe.withDefault -1 (String.toInt model.inputGuess)
 
         theRightAnswer =
-            Debug.log "theRightAnswer" <|
+            Debug.log "the right answer was" <|
                 case item of
                     Red ->
                         if time + 25 >= 60 then
@@ -247,7 +247,7 @@ viewInputGuess text =
         ]
         { onChange = InputGuessChanged
         , text = text
-        , placeholder = Just (Input.placeholder [ Font.color <| color TextInverted ] (Ui.text ""))
+        , placeholder = Just (Input.placeholder [] (Ui.text ""))
         , label = Input.labelLeft [] (Ui.text "Next item at xx:")
         }
 
