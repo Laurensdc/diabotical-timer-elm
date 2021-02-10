@@ -60,8 +60,7 @@ type Msg
 
 type GameState
     = Loading
-    | Guessed
-    | ItemSpawned Spawn
+    | Guessing Spawn
 
 
 type alias Spawn =
@@ -80,7 +79,7 @@ update msg model =
             ( model, generateNewSpawn )
 
         GeneratedSpawn itemSpawned ->
-            ( { model | gameState = ItemSpawned itemSpawned }, Cmd.none )
+            ( { model | gameState = Guessing itemSpawned }, Cmd.none )
 
         InputGuessChanged txt ->
             ( { model | inputGuess = txt }, Cmd.none )
@@ -203,7 +202,7 @@ viewCoreGame model =
         Loading ->
             [ Ui.none ]
 
-        ItemSpawned spawn ->
+        Guessing spawn ->
             let
                 spawncolor =
                     if spawn.item == Red then
@@ -247,9 +246,6 @@ viewCoreGame model =
                 , label = Ui.text "Guess"
                 }
             ]
-
-        _ ->
-            [ Ui.none ]
 
 
 itemToString : Item -> String
