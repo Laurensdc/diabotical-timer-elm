@@ -32,16 +32,16 @@ main =
 
 type alias Model =
     { inputGuess : String
-    , theRightAnswer : Int
-    , gameState : GameState
+    , currentSpawn : Spawn
+    , lastGuessCorrectness : LastGuessCorrectness
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { gameState = Loading
-      , inputGuess = ""
-      , theRightAnswer = 0
+    ( { inputGuess = ""
+      , currentSpawn = { item = Red, time = 0 }
+      , lastGuessCorrectness = HasntAnsweredYet
       }
     , Random.generate GeneratedSpawn itemSpawnedGenerator
     )
@@ -55,12 +55,13 @@ type Msg
     = GeneratingSpawn
     | GeneratedSpawn Spawn
     | InputGuessChanged String -- Input field
-    | GuessSubmitted Spawn -- Spawned item & Int guess of player
+    | GuessSubmitted -- Spawned item & Int guess of player
 
 
-type GameState
-    = Loading
-    | Guessing Spawn
+type LastGuessCorrectness
+    = Correct
+    | Wrong
+    | HasntAnsweredYet
 
 
 type alias Spawn =
@@ -79,13 +80,13 @@ update msg model =
             ( model, generateNewSpawn )
 
         GeneratedSpawn itemSpawned ->
-            ( { model | gameState = Guessing itemSpawned }, Cmd.none )
+            ( { model | currentSpawn = itemSpawned }, Cmd.none )
 
         InputGuessChanged txt ->
             ( { model | inputGuess = txt }, Cmd.none )
 
-        GuessSubmitted spawn ->
-            ( validateAnswer model spawn, generateNewSpawn )
+        GuessSubmitted ->
+            ( validateAnswer model, generateNewSpawn )
 
 
 generateNewSpawn : Cmd Msg
@@ -97,35 +98,44 @@ generateNewSpawn =
 -- Generate spawn time for Red or Mega
 
 
-validateAnswer : Model -> Spawn -> Model
-validateAnswer model spawn =
+validateAnswer : Model -> Model
+validateAnswer model =
     let
         item =
-            spawn.item
+            model.currentSpawn.item
 
         time =
-            spawn.time
+            model.currentSpawn.time
 
         guess =
             Maybe.withDefault -1 (String.toInt model.inputGuess)
 
         theRightAnswer =
-            case item of
-                Red ->
-                    if time + 25 >= 60 then
-                        time + 25 - 60
+            Debug.log "theRightAnswer" <|
+                case item of
+                    Red ->
+                        if time + 25 >= 60 then
+                            time + 25 - 60
 
-                    else
-                        time + 25
+                        else
+                            time + 25
 
-                Mega ->
-                    if time + 35 >= 60 then
-                        time + 35 - 60
+                    Mega ->
+                        if time + 35 >= 60 then
+                            time + 35 - 60
 
-                    else
-                        time + 35
+                        else
+                            time + 35
+
+        correctness : LastGuessCorrectness
+        correctness =
+            if guess == theRightAnswer then
+                Correct
+
+            else
+                Wrong
     in
-    { model | theRightAnswer = theRightAnswer }
+    { model | lastGuessCorrectness = correctness, inputGuess = "" }
 
 
 itemSpawnedGenerator : Random.Generator Spawn
@@ -198,54 +208,65 @@ view model =
 
 viewCoreGame : Model -> List (Ui.Element Msg)
 viewCoreGame model =
-    case model.gameState of
-        Loading ->
-            [ Ui.none ]
+    let
+        spawncolor =
+            if model.currentSpawn.item == Red then
+                Ui.rgb 1 0 0
 
-        Guessing spawn ->
-            let
-                spawncolor =
-                    if spawn.item == Red then
-                        Ui.rgb 1 0 0
+            else
+                Ui.rgb 0 1 1
 
-                    else
-                        Ui.rgb 0 1 1
-            in
-            [ Ui.paragraph []
-                -- Red armor / mega spawned at
-                [ Ui.el [ Font.bold, Font.color spawncolor ] (Ui.text (itemToString spawn.item))
-                , Ui.text " spawned at "
-                , Ui.el [ Font.bold ] (Ui.text (String.fromInt spawn.time))
-                ]
-            , Input.text
-                [ onEnter (GuessSubmitted spawn)
-                , Ui.width (Ui.shrink |> Ui.minimum 80)
-                , Ui.height (Ui.px 40)
-                , Ui.centerY
-                , Input.focusedOnLoad
-                ]
-                { onChange = InputGuessChanged
-                , text = model.inputGuess
-                , placeholder = Just (Input.placeholder [] (Ui.text "25"))
-                , label = Input.labelLeft [] (Ui.text "Next item at xx:")
-                }
-            , Input.button
-                [ Border.width 1
-                , Border.rounded 8
-                , Border.color <| color Text
-                , Background.color <| color BgLight
-                , Font.color <| color Text
-                , Ui.paddingXY 32 8
-                , Ui.mouseOver
-                    [ Font.color <| color Cta
-                    , Border.color <| color Cta
-                    ]
-                , smoothTransition
-                ]
-                { onPress = Just (GuessSubmitted spawn)
-                , label = Ui.text "Guess"
-                }
+        ( feedbackColor, feedbackText ) =
+            case model.lastGuessCorrectness of
+                Correct ->
+                    ( Ui.rgb 0 1 0, "Joepie" )
+
+                Wrong ->
+                    ( Ui.rgb 1 0 0, "Fuck ge suckt" )
+
+                HasntAnsweredYet ->
+                    ( Ui.rgb 0 0 0, "Antwoord, slet" )
+
+        feedback =
+            Ui.paragraph [ Font.color <| feedbackColor ] [ Ui.text feedbackText ]
+    in
+    [ Ui.paragraph []
+        -- Red armor / mega spawned at
+        [ Ui.el [ Font.bold, Font.color spawncolor ] (Ui.text (itemToString model.currentSpawn.item))
+        , Ui.text " spawned at "
+        , Ui.el [ Font.bold ] (Ui.text (String.fromInt model.currentSpawn.time))
+        ]
+    , Input.text
+        [ onEnter GuessSubmitted
+        , Ui.width (Ui.shrink |> Ui.minimum 80)
+        , Ui.height (Ui.px 40)
+        , Ui.centerY
+        , Input.focusedOnLoad
+        , Font.color <| color TextInverted
+        ]
+        { onChange = InputGuessChanged
+        , text = model.inputGuess
+        , placeholder = Just (Input.placeholder [ Font.color <| color TextInverted ] (Ui.text ""))
+        , label = Input.labelLeft [] (Ui.text "Next item at xx:")
+        }
+    , Input.button
+        [ Border.width 1
+        , Border.rounded 8
+        , Border.color <| color Text
+        , Background.color <| color BgLight
+        , Font.color <| color Text
+        , Ui.paddingXY 32 8
+        , Ui.mouseOver
+            [ Font.color <| color Cta
+            , Border.color <| color Cta
             ]
+        , smoothTransition
+        ]
+        { onPress = Just GuessSubmitted
+        , label = Ui.text "Guess"
+        }
+    , feedback
+    ]
 
 
 itemToString : Item -> String
@@ -305,3 +326,10 @@ color col =
 
         BgLight ->
             Ui.rgb255 0x39 0x3E 0x46
+
+
+
+-- hexToColor : String -> Ui.Color
+-- hexToColor s =
+--     -- Eerste karakter is #
+--     String.
