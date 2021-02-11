@@ -35,6 +35,7 @@ type alias Model =
     { inputGuess : String
     , currentSpawn : Spawn
     , lastGuessCorrectness : LastGuessCorrectness
+    , pastGuesses : PastGuesses
     }
 
 
@@ -43,6 +44,7 @@ init _ =
     ( { inputGuess = ""
       , currentSpawn = { item = Red, time = 0 }
       , lastGuessCorrectness = HasntAnsweredYet
+      , pastGuesses = []
       }
     , Random.generate GeneratedSpawn itemSpawnedGenerator
     )
@@ -63,6 +65,10 @@ type LastGuessCorrectness
     = Correct
     | Wrong
     | HasntAnsweredYet
+
+
+type alias PastGuesses =
+    List { spawn : Spawn, userGuess : Int, theCorrectGuess : Int }
 
 
 type alias Spawn =
@@ -135,8 +141,11 @@ validateAnswer model =
 
             else
                 Wrong
+
+        updatedPastGuesses =
+            model.pastGuesses ++ [ { spawn = model.currentSpawn, userGuess = guess, theCorrectGuess = theRightAnswer } ]
     in
-    { model | lastGuessCorrectness = correctness, inputGuess = "" }
+    { model | lastGuessCorrectness = correctness, pastGuesses = updatedPastGuesses, inputGuess = "" }
 
 
 itemSpawnedGenerator : Random.Generator Spawn
@@ -169,6 +178,7 @@ subscriptions model =
 
 view : Model -> Html.Html Msg
 view model =
+    -- Global UI 'around' main UI
     Ui.layoutWith
         { options =
             -- Global focus style
@@ -187,7 +197,6 @@ view model =
         }
         [ Background.color (color Bg) ]
         (Ui.column
-            -- Main UI component
             [ Ui.centerX
             , Ui.centerY
             , Ui.paddingEach { top = 0, right = 0, bottom = 200, left = 0 }
@@ -213,6 +222,7 @@ viewCoreGame model =
     , viewInputGuess model.inputGuess
     , viewGuessButton
     , viewFeedback model.lastGuessCorrectness
+    , viewPastGuesses model.pastGuesses
     ]
 
 
@@ -273,7 +283,7 @@ viewGuessButton =
         }
 
 
-viewFeedback : LastGuessCorrectness -> Ui.Element msg
+viewFeedback : LastGuessCorrectness -> Ui.Element Msg
 viewFeedback lastGuessCorrectness =
     let
         ( feedbackColor, feedbackText ) =
@@ -288,6 +298,40 @@ viewFeedback lastGuessCorrectness =
                     ( color Text, "Antwoord, slet" )
     in
     Ui.paragraph [ Font.color <| feedbackColor ] [ Ui.text feedbackText ]
+
+
+viewPastGuesses : PastGuesses -> Ui.Element Msg
+viewPastGuesses pastGuesses =
+    if List.length pastGuesses == 0 then
+        Ui.none
+
+    else
+        let
+            cellAttrs =
+                [ Border.width 1
+                , Border.color <| color BgLight
+                , Ui.paddingXY 32 16
+                ]
+        in
+        Ui.table []
+            { data = pastGuesses
+            , columns =
+                [ { header = Ui.el cellAttrs (Ui.text "Spawn")
+                  , width = Ui.shrink
+                  , view =
+                        \guess ->
+                            Ui.el cellAttrs (Ui.text (itemToString guess.spawn.item ++ " " ++ String.fromInt guess.spawn.time))
+                  }
+                , { header = Ui.el cellAttrs (Ui.text "Your guess")
+                  , width = Ui.shrink
+                  , view = \guess -> Ui.el cellAttrs (Ui.text (String.fromInt guess.userGuess))
+                  }
+                , { header = Ui.el cellAttrs (Ui.text "What was right guess")
+                  , width = Ui.shrink
+                  , view = \guess -> Ui.el cellAttrs (Ui.text (String.fromInt guess.theCorrectGuess))
+                  }
+                ]
+            }
 
 
 itemToString : Item -> String
