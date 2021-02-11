@@ -230,7 +230,7 @@ viewSpawn : Spawn -> Ui.Element Msg
 viewSpawn spawn =
     -- Red armor / mega spawned at xx
     Ui.paragraph [ Font.variant Font.tabularNumbers, Font.center ]
-        [ itemToColorCodedElement spawn.item
+        [ viewItemColored spawn.item
         , Ui.text " spawned at xx:"
         , Ui.el [ Font.bold ] (Ui.text (spawnTimeToStr spawn.time))
         ]
@@ -313,7 +313,7 @@ viewPastGuesses pastGuesses =
                   , width = Ui.shrink
                   , view =
                         \guess ->
-                            Ui.paragraph (cellAttrs ++ [ Font.alignRight, Font.variant Font.tabularNumbers ]) [ itemToColorCodedElement guess.spawn.item, Ui.text (" @ xx:" ++ spawnTimeToStr guess.spawn.time) ]
+                            Ui.paragraph (cellAttrs ++ [ Font.alignRight, Font.variant Font.tabularNumbers ]) [ viewItemColored guess.spawn.item, Ui.text (" @ xx:" ++ spawnTimeToStr guess.spawn.time) ]
                   }
                 , { header = Ui.el cellAttrs (Ui.text "Correct answer")
                   , width = Ui.shrink
@@ -327,18 +327,8 @@ viewPastGuesses pastGuesses =
             }
 
 
-itemToString : Item -> String
-itemToString item =
-    case item of
-        Red ->
-            "Red armor"
-
-        Mega ->
-            "Mega"
-
-
-itemToColorCodedElement : Item -> Ui.Element msg
-itemToColorCodedElement item =
+viewItemColored : Item -> Ui.Element msg
+viewItemColored item =
     let
         spawncolor =
             if item == Red then
@@ -348,6 +338,16 @@ itemToColorCodedElement item =
                 Ui.rgb 0 1 1
     in
     Ui.el [ Font.bold, Font.color spawncolor ] (Ui.text (itemToString item))
+
+
+itemToString : Item -> String
+itemToString item =
+    case item of
+        Red ->
+            "Red armor"
+
+        Mega ->
+            "Mega"
 
 
 spawnTimeToStr : Int -> String

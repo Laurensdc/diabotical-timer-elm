@@ -18054,27 +18054,6 @@ var $author$project$Main$viewInputGuess = function (text) {
 var $mdgriffith$elm_ui$Internal$Flag$fontAlignment = $mdgriffith$elm_ui$Internal$Flag$flag(12);
 var $mdgriffith$elm_ui$Element$Font$alignRight = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$fontAlignment, $mdgriffith$elm_ui$Internal$Style$classes.textRight);
 var $mdgriffith$elm_ui$Element$Font$center = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$fontAlignment, $mdgriffith$elm_ui$Internal$Style$classes.textCenter);
-var $mdgriffith$elm_ui$Internal$Flag$fontWeight = $mdgriffith$elm_ui$Internal$Flag$flag(13);
-var $mdgriffith$elm_ui$Element$Font$bold = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$fontWeight, $mdgriffith$elm_ui$Internal$Style$classes.bold);
-var $author$project$Main$itemToString = function (item) {
-	if (item.$ === 'Red') {
-		return 'Red armor';
-	} else {
-		return 'Mega';
-	}
-};
-var $author$project$Main$itemToColorCodedElement = function (item) {
-	var spawncolor = _Utils_eq(item, $author$project$Main$Red) ? A3($mdgriffith$elm_ui$Element$rgb, 1, 0, 0) : A3($mdgriffith$elm_ui$Element$rgb, 0, 1, 1);
-	return A2(
-		$mdgriffith$elm_ui$Element$el,
-		_List_fromArray(
-			[
-				$mdgriffith$elm_ui$Element$Font$bold,
-				$mdgriffith$elm_ui$Element$Font$color(spawncolor)
-			]),
-		$mdgriffith$elm_ui$Element$text(
-			$author$project$Main$itemToString(item)));
-};
 var $mdgriffith$elm_ui$Element$none = $mdgriffith$elm_ui$Internal$Model$Empty;
 var $author$project$Main$spawnTimeToStr = function (time) {
 	return ((time < 10) && (time >= 0)) ? ('0' + $elm$core$String$fromInt(time)) : $elm$core$String$fromInt(time);
@@ -18329,6 +18308,27 @@ var $mdgriffith$elm_ui$Element$Font$variant = function (_var) {
 					'\"' + (name + ('\" ' + $elm$core$String$fromInt(index)))));
 	}
 };
+var $mdgriffith$elm_ui$Internal$Flag$fontWeight = $mdgriffith$elm_ui$Internal$Flag$flag(13);
+var $mdgriffith$elm_ui$Element$Font$bold = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$fontWeight, $mdgriffith$elm_ui$Internal$Style$classes.bold);
+var $author$project$Main$itemToString = function (item) {
+	if (item.$ === 'Red') {
+		return 'Red armor';
+	} else {
+		return 'Mega';
+	}
+};
+var $author$project$Main$viewItemColored = function (item) {
+	var spawncolor = _Utils_eq(item, $author$project$Main$Red) ? A3($mdgriffith$elm_ui$Element$rgb, 1, 0, 0) : A3($mdgriffith$elm_ui$Element$rgb, 0, 1, 1);
+	return A2(
+		$mdgriffith$elm_ui$Element$el,
+		_List_fromArray(
+			[
+				$mdgriffith$elm_ui$Element$Font$bold,
+				$mdgriffith$elm_ui$Element$Font$color(spawncolor)
+			]),
+		$mdgriffith$elm_ui$Element$text(
+			$author$project$Main$itemToString(item)));
+};
 var $author$project$Main$viewPastGuesses = function (pastGuesses) {
 	if (!$elm$core$List$length(pastGuesses)) {
 		return $mdgriffith$elm_ui$Element$none;
@@ -18364,7 +18364,7 @@ var $author$project$Main$viewPastGuesses = function (pastGuesses) {
 										])),
 								_List_fromArray(
 									[
-										$author$project$Main$itemToColorCodedElement(guess.spawn.item),
+										$author$project$Main$viewItemColored(guess.spawn.item),
 										$mdgriffith$elm_ui$Element$text(
 										' @ xx:' + $author$project$Main$spawnTimeToStr(guess.spawn.time))
 									]));
@@ -18414,7 +18414,7 @@ var $author$project$Main$viewSpawn = function (spawn) {
 			]),
 		_List_fromArray(
 			[
-				$author$project$Main$itemToColorCodedElement(spawn.item),
+				$author$project$Main$viewItemColored(spawn.item),
 				$mdgriffith$elm_ui$Element$text(' spawned at xx:'),
 				A2(
 				$mdgriffith$elm_ui$Element$el,
