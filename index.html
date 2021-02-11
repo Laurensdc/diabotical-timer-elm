@@ -18076,6 +18076,9 @@ var $author$project$Main$itemToColorCodedElement = function (item) {
 			$author$project$Main$itemToString(item)));
 };
 var $mdgriffith$elm_ui$Element$none = $mdgriffith$elm_ui$Internal$Model$Empty;
+var $author$project$Main$spawnTimeToStr = function (time) {
+	return ((time < 10) && (time >= 0)) ? ('0' + $elm$core$String$fromInt(time)) : $elm$core$String$fromInt(time);
+};
 var $mdgriffith$elm_ui$Element$InternalColumn = function (a) {
 	return {$: 'InternalColumn', a: a};
 };
@@ -18363,7 +18366,7 @@ var $author$project$Main$viewPastGuesses = function (pastGuesses) {
 									[
 										$author$project$Main$itemToColorCodedElement(guess.spawn.item),
 										$mdgriffith$elm_ui$Element$text(
-										' @ xx:' + $elm$core$String$fromInt(guess.spawn.time))
+										' @ xx:' + $author$project$Main$spawnTimeToStr(guess.spawn.time))
 									]));
 						},
 						width: $mdgriffith$elm_ui$Element$shrink
@@ -18404,17 +18407,21 @@ var $author$project$Main$viewPastGuesses = function (pastGuesses) {
 var $author$project$Main$viewSpawn = function (spawn) {
 	return A2(
 		$mdgriffith$elm_ui$Element$paragraph,
-		_List_Nil,
+		_List_fromArray(
+			[
+				$mdgriffith$elm_ui$Element$Font$variant($mdgriffith$elm_ui$Element$Font$tabularNumbers),
+				$mdgriffith$elm_ui$Element$Font$center
+			]),
 		_List_fromArray(
 			[
 				$author$project$Main$itemToColorCodedElement(spawn.item),
-				$mdgriffith$elm_ui$Element$text(' spawned at '),
+				$mdgriffith$elm_ui$Element$text(' spawned at xx:'),
 				A2(
 				$mdgriffith$elm_ui$Element$el,
 				_List_fromArray(
 					[$mdgriffith$elm_ui$Element$Font$bold]),
 				$mdgriffith$elm_ui$Element$text(
-					$elm$core$String$fromInt(spawn.time)))
+					$author$project$Main$spawnTimeToStr(spawn.time)))
 			]));
 };
 var $author$project$Main$viewCoreGame = function (model) {

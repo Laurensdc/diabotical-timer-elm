@@ -229,10 +229,10 @@ viewCoreGame model =
 viewSpawn : Spawn -> Ui.Element Msg
 viewSpawn spawn =
     -- Red armor / mega spawned at xx
-    Ui.paragraph []
+    Ui.paragraph [ Font.variant Font.tabularNumbers, Font.center ]
         [ itemToColorCodedElement spawn.item
-        , Ui.text " spawned at "
-        , Ui.el [ Font.bold ] (Ui.text (String.fromInt spawn.time))
+        , Ui.text " spawned at xx:"
+        , Ui.el [ Font.bold ] (Ui.text (spawnTimeToStr spawn.time))
         ]
 
 
@@ -313,7 +313,7 @@ viewPastGuesses pastGuesses =
                   , width = Ui.shrink
                   , view =
                         \guess ->
-                            Ui.paragraph (cellAttrs ++ [ Font.alignRight, Font.variant Font.tabularNumbers ]) [ itemToColorCodedElement guess.spawn.item, Ui.text (" @ xx:" ++ String.fromInt guess.spawn.time) ]
+                            Ui.paragraph (cellAttrs ++ [ Font.alignRight, Font.variant Font.tabularNumbers ]) [ itemToColorCodedElement guess.spawn.item, Ui.text (" @ xx:" ++ spawnTimeToStr guess.spawn.time) ]
                   }
                 , { header = Ui.el cellAttrs (Ui.text "Correct answer")
                   , width = Ui.shrink
@@ -348,6 +348,15 @@ itemToColorCodedElement item =
                 Ui.rgb 0 1 1
     in
     Ui.el [ Font.bold, Font.color spawncolor ] (Ui.text (itemToString item))
+
+
+spawnTimeToStr : Int -> String
+spawnTimeToStr time =
+    if time < 10 && time >= 0 then
+        "0" ++ String.fromInt time
+
+    else
+        String.fromInt time
 
 
 onEnter : msg -> Ui.Attribute msg
