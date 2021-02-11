@@ -18051,12 +18051,29 @@ var $author$project$Main$viewInputGuess = function (text) {
 			text: text
 		});
 };
+var $mdgriffith$elm_ui$Internal$Flag$fontAlignment = $mdgriffith$elm_ui$Internal$Flag$flag(12);
+var $mdgriffith$elm_ui$Element$Font$alignRight = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$fontAlignment, $mdgriffith$elm_ui$Internal$Style$classes.textRight);
+var $mdgriffith$elm_ui$Element$Font$center = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$fontAlignment, $mdgriffith$elm_ui$Internal$Style$classes.textCenter);
+var $mdgriffith$elm_ui$Internal$Flag$fontWeight = $mdgriffith$elm_ui$Internal$Flag$flag(13);
+var $mdgriffith$elm_ui$Element$Font$bold = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$fontWeight, $mdgriffith$elm_ui$Internal$Style$classes.bold);
 var $author$project$Main$itemToString = function (item) {
 	if (item.$ === 'Red') {
 		return 'Red armor';
 	} else {
 		return 'Mega';
 	}
+};
+var $author$project$Main$itemToColorCodedElement = function (item) {
+	var spawncolor = _Utils_eq(item, $author$project$Main$Red) ? A3($mdgriffith$elm_ui$Element$rgb, 1, 0, 0) : A3($mdgriffith$elm_ui$Element$rgb, 0, 1, 1);
+	return A2(
+		$mdgriffith$elm_ui$Element$el,
+		_List_fromArray(
+			[
+				$mdgriffith$elm_ui$Element$Font$bold,
+				$mdgriffith$elm_ui$Element$Font$color(spawncolor)
+			]),
+		$mdgriffith$elm_ui$Element$text(
+			$author$project$Main$itemToString(item)));
 };
 var $mdgriffith$elm_ui$Element$none = $mdgriffith$elm_ui$Internal$Model$Empty;
 var $mdgriffith$elm_ui$Element$InternalColumn = function (a) {
@@ -18283,6 +18300,32 @@ var $mdgriffith$elm_ui$Element$table = F2(
 				data: config.data
 			});
 	});
+var $mdgriffith$elm_ui$Internal$Model$VariantActive = function (a) {
+	return {$: 'VariantActive', a: a};
+};
+var $mdgriffith$elm_ui$Element$Font$tabularNumbers = $mdgriffith$elm_ui$Internal$Model$VariantActive('tnum');
+var $mdgriffith$elm_ui$Internal$Flag$fontVariant = $mdgriffith$elm_ui$Internal$Flag$flag(48);
+var $mdgriffith$elm_ui$Element$Font$variant = function (_var) {
+	switch (_var.$) {
+		case 'VariantActive':
+			var name = _var.a;
+			return A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$fontVariant, 'v-' + name);
+		case 'VariantOff':
+			var name = _var.a;
+			return A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$fontVariant, 'v-' + (name + '-off'));
+		default:
+			var name = _var.a;
+			var index = _var.b;
+			return A2(
+				$mdgriffith$elm_ui$Internal$Model$StyleClass,
+				$mdgriffith$elm_ui$Internal$Flag$fontVariant,
+				A3(
+					$mdgriffith$elm_ui$Internal$Model$Single,
+					'v-' + (name + ('-' + $elm$core$String$fromInt(index))),
+					'font-feature-settings',
+					'\"' + (name + ('\" ' + $elm$core$String$fromInt(index)))));
+	}
+};
 var $author$project$Main$viewPastGuesses = function (pastGuesses) {
 	if (!$elm$core$List$length(pastGuesses)) {
 		return $mdgriffith$elm_ui$Element$none;
@@ -18292,7 +18335,8 @@ var $author$project$Main$viewPastGuesses = function (pastGuesses) {
 				$mdgriffith$elm_ui$Element$Border$width(1),
 				$mdgriffith$elm_ui$Element$Border$color(
 				$author$project$Main$color($author$project$Main$BgLight)),
-				A2($mdgriffith$elm_ui$Element$paddingXY, 32, 16)
+				A2($mdgriffith$elm_ui$Element$paddingXY, 32, 16),
+				$mdgriffith$elm_ui$Element$Font$center
 			]);
 		return A2(
 			$mdgriffith$elm_ui$Element$table,
@@ -18307,10 +18351,34 @@ var $author$project$Main$viewPastGuesses = function (pastGuesses) {
 							$mdgriffith$elm_ui$Element$text('Spawn')),
 						view: function (guess) {
 							return A2(
+								$mdgriffith$elm_ui$Element$paragraph,
+								_Utils_ap(
+									cellAttrs,
+									_List_fromArray(
+										[
+											$mdgriffith$elm_ui$Element$Font$alignRight,
+											$mdgriffith$elm_ui$Element$Font$variant($mdgriffith$elm_ui$Element$Font$tabularNumbers)
+										])),
+								_List_fromArray(
+									[
+										$author$project$Main$itemToColorCodedElement(guess.spawn.item),
+										$mdgriffith$elm_ui$Element$text(
+										' @ xx:' + $elm$core$String$fromInt(guess.spawn.time))
+									]));
+						},
+						width: $mdgriffith$elm_ui$Element$shrink
+					},
+						{
+						header: A2(
+							$mdgriffith$elm_ui$Element$el,
+							cellAttrs,
+							$mdgriffith$elm_ui$Element$text('Correct answer')),
+						view: function (guess) {
+							return A2(
 								$mdgriffith$elm_ui$Element$el,
 								cellAttrs,
 								$mdgriffith$elm_ui$Element$text(
-									$author$project$Main$itemToString(guess.spawn.item) + (' ' + $elm$core$String$fromInt(guess.spawn.time))));
+									$elm$core$String$fromInt(guess.theCorrectGuess)));
 						},
 						width: $mdgriffith$elm_ui$Element$shrink
 					},
@@ -18327,44 +18395,19 @@ var $author$project$Main$viewPastGuesses = function (pastGuesses) {
 									$elm$core$String$fromInt(guess.userGuess)));
 						},
 						width: $mdgriffith$elm_ui$Element$shrink
-					},
-						{
-						header: A2(
-							$mdgriffith$elm_ui$Element$el,
-							cellAttrs,
-							$mdgriffith$elm_ui$Element$text('What was right guess')),
-						view: function (guess) {
-							return A2(
-								$mdgriffith$elm_ui$Element$el,
-								cellAttrs,
-								$mdgriffith$elm_ui$Element$text(
-									$elm$core$String$fromInt(guess.theCorrectGuess)));
-						},
-						width: $mdgriffith$elm_ui$Element$shrink
 					}
 					]),
 				data: pastGuesses
 			});
 	}
 };
-var $mdgriffith$elm_ui$Internal$Flag$fontWeight = $mdgriffith$elm_ui$Internal$Flag$flag(13);
-var $mdgriffith$elm_ui$Element$Font$bold = A2($mdgriffith$elm_ui$Internal$Model$Class, $mdgriffith$elm_ui$Internal$Flag$fontWeight, $mdgriffith$elm_ui$Internal$Style$classes.bold);
 var $author$project$Main$viewSpawn = function (spawn) {
-	var spawncolor = _Utils_eq(spawn.item, $author$project$Main$Red) ? A3($mdgriffith$elm_ui$Element$rgb, 1, 0, 0) : A3($mdgriffith$elm_ui$Element$rgb, 0, 1, 1);
 	return A2(
 		$mdgriffith$elm_ui$Element$paragraph,
 		_List_Nil,
 		_List_fromArray(
 			[
-				A2(
-				$mdgriffith$elm_ui$Element$el,
-				_List_fromArray(
-					[
-						$mdgriffith$elm_ui$Element$Font$bold,
-						$mdgriffith$elm_ui$Element$Font$color(spawncolor)
-					]),
-				$mdgriffith$elm_ui$Element$text(
-					$author$project$Main$itemToString(spawn.item))),
+				$author$project$Main$itemToColorCodedElement(spawn.item),
 				$mdgriffith$elm_ui$Element$text(' spawned at '),
 				A2(
 				$mdgriffith$elm_ui$Element$el,

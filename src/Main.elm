@@ -229,16 +229,8 @@ viewCoreGame model =
 viewSpawn : Spawn -> Ui.Element Msg
 viewSpawn spawn =
     -- Red armor / mega spawned at xx
-    let
-        spawncolor =
-            if spawn.item == Red then
-                Ui.rgb 1 0 0
-
-            else
-                Ui.rgb 0 1 1
-    in
     Ui.paragraph []
-        [ Ui.el [ Font.bold, Font.color spawncolor ] (Ui.text (itemToString spawn.item))
+        [ itemToColorCodedElement spawn.item
         , Ui.text " spawned at "
         , Ui.el [ Font.bold ] (Ui.text (String.fromInt spawn.time))
         ]
@@ -311,6 +303,7 @@ viewPastGuesses pastGuesses =
                 [ Border.width 1
                 , Border.color <| color BgLight
                 , Ui.paddingXY 32 16
+                , Font.center
                 ]
         in
         Ui.table []
@@ -320,15 +313,15 @@ viewPastGuesses pastGuesses =
                   , width = Ui.shrink
                   , view =
                         \guess ->
-                            Ui.el cellAttrs (Ui.text (itemToString guess.spawn.item ++ " " ++ String.fromInt guess.spawn.time))
+                            Ui.paragraph (cellAttrs ++ [ Font.alignRight, Font.variant Font.tabularNumbers ]) [ itemToColorCodedElement guess.spawn.item, Ui.text (" @ xx:" ++ String.fromInt guess.spawn.time) ]
+                  }
+                , { header = Ui.el cellAttrs (Ui.text "Correct answer")
+                  , width = Ui.shrink
+                  , view = \guess -> Ui.el cellAttrs (Ui.text (String.fromInt guess.theCorrectGuess))
                   }
                 , { header = Ui.el cellAttrs (Ui.text "Your guess")
                   , width = Ui.shrink
                   , view = \guess -> Ui.el cellAttrs (Ui.text (String.fromInt guess.userGuess))
-                  }
-                , { header = Ui.el cellAttrs (Ui.text "What was right guess")
-                  , width = Ui.shrink
-                  , view = \guess -> Ui.el cellAttrs (Ui.text (String.fromInt guess.theCorrectGuess))
                   }
                 ]
             }
@@ -342,6 +335,19 @@ itemToString item =
 
         Mega ->
             "Mega"
+
+
+itemToColorCodedElement : Item -> Ui.Element msg
+itemToColorCodedElement item =
+    let
+        spawncolor =
+            if item == Red then
+                Ui.rgb 1 0 0
+
+            else
+                Ui.rgb 0 1 1
+    in
+    Ui.el [ Font.bold, Font.color spawncolor ] (Ui.text (itemToString item))
 
 
 onEnter : msg -> Ui.Attribute msg
