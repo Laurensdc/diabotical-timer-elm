@@ -201,6 +201,7 @@ view model =
             , Ui.centerY
             , Ui.paddingEach { top = 0, right = 0, bottom = 200, left = 0 }
             , Ui.width Ui.shrink
+            , Ui.spacing 32
 
             -- Global font styles
             , Font.family
@@ -210,7 +211,6 @@ view model =
                 ]
             , Font.size 18
             , Font.color (color Text)
-            , Ui.spacing 16
             ]
             (viewCoreGame model)
         )
@@ -219,7 +219,7 @@ view model =
 viewCoreGame : Model -> List (Ui.Element Msg)
 viewCoreGame model =
     [ viewSpawn model.currentSpawn
-    , viewInputGuess model.inputGuess
+    , viewInputGuess model
     , viewGuessButton
     , viewFeedback model.lastGuessCorrectness
     , viewPastGuesses model.pastGuesses
@@ -231,34 +231,38 @@ viewSpawn spawn =
     -- Red armor / mega spawned at xx
     Ui.paragraph [ Font.variant Font.tabularNumbers, Font.center ]
         [ viewItemColored spawn.item
-        , Ui.text " spawned at xx:"
+        , Ui.text " spawned at "
         , Ui.el [ Font.bold ] (Ui.text (spawnTimeToStr spawn.time))
         ]
 
 
-viewInputGuess : String -> Ui.Element Msg
-viewInputGuess text =
+viewInputGuess : Model -> Ui.Element Msg
+viewInputGuess model =
     -- inputGuess textfield
-    Input.text
-        [ onEnter GuessSubmitted
-        , Ui.width (Ui.shrink |> Ui.minimum 80)
-        , Ui.height (Ui.px 40)
-        , Ui.centerY
-        , Input.focusedOnLoad
-        , Font.color <| color TextInverted
-        ]
-        { onChange = InputGuessChanged
-        , text = text
-        , placeholder = Just (Input.placeholder [] (Ui.text ""))
-        , label = Input.labelLeft [] (Ui.text "Next item at xx:")
-        }
+    Ui.el [ Ui.centerX ]
+        (Input.text
+            [ onEnter GuessSubmitted
+            , Ui.width (Ui.px 60)
+            , Ui.centerX
+            , Ui.paddingXY 16 8
+            , Font.center
+            , Font.color <| color TextInverted
+            , Input.focusedOnLoad
+            ]
+            { onChange = InputGuessChanged
+            , text = model.inputGuess
+            , placeholder = Nothing
+            , label = Input.labelLeft [] (Ui.text ("Next " ++ itemToString model.currentSpawn.item ++ " at "))
+            }
+        )
 
 
 viewGuessButton : Ui.Element Msg
 viewGuessButton =
     -- Guess btn
     Input.button
-        [ Border.width 1
+        [ Ui.centerX
+        , Border.width 1
         , Border.rounded 8
         , Border.color <| color Text
         , Background.color <| color BgLight
@@ -289,7 +293,7 @@ viewFeedback lastGuessCorrectness =
                 HasntAnsweredYet ->
                     ( color Text, "Antwoord, slet" )
     in
-    Ui.paragraph [ Font.color <| feedbackColor ] [ Ui.text feedbackText ]
+    Ui.paragraph [ Font.center, Font.color <| feedbackColor ] [ Ui.text feedbackText ]
 
 
 viewPastGuesses : PastGuesses -> Ui.Element Msg
@@ -313,7 +317,7 @@ viewPastGuesses pastGuesses =
                   , width = Ui.shrink
                   , view =
                         \guess ->
-                            Ui.paragraph (cellAttrs ++ [ Font.alignRight, Font.variant Font.tabularNumbers ]) [ viewItemColored guess.spawn.item, Ui.text (" @ xx:" ++ spawnTimeToStr guess.spawn.time) ]
+                            Ui.paragraph (cellAttrs ++ [ Font.alignRight, Font.variant Font.tabularNumbers ]) [ viewItemColored guess.spawn.item, Ui.text (" " ++ spawnTimeToStr guess.spawn.time) ]
                   }
                 , { header = Ui.el cellAttrs (Ui.text "Correct answer")
                   , width = Ui.shrink
@@ -337,7 +341,7 @@ viewItemColored item =
             else
                 Ui.rgb 0 1 1
     in
-    Ui.el [ Font.bold, Font.color spawncolor ] (Ui.text (itemToString item))
+    Ui.el [ Font.semiBold, Font.color spawncolor ] (Ui.text (itemToString item))
 
 
 itemToString : Item -> String
